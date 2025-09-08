@@ -30,7 +30,7 @@ export function CropRecommendation() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       soilType: "",
-      area: undefined,
+      area: "" as any,
       previousCrop: "",
     },
   });
