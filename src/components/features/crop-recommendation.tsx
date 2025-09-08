@@ -24,6 +24,7 @@ export function CropRecommendation() {
     soilType: z.string().min(2, { message: t('crop_rec_soil_validation') }),
     area: z.coerce.number().positive({ message: t('crop_rec_area_validation') }),
     previousCrop: z.string().min(2, { message: t('crop_rec_prev_crop_validation') }),
+    address: z.string().optional(),
   });
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -32,6 +33,7 @@ export function CropRecommendation() {
       soilType: "",
       area: "" as any,
       previousCrop: "",
+      address: "",
     },
   });
 
@@ -99,6 +101,19 @@ export function CropRecommendation() {
                   <FormLabel>{t('crop_rec_prev_crop_label')}</FormLabel>
                   <FormControl>
                     <Input placeholder={t('crop_rec_prev_crop_placeholder')} {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="address"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t('crop_rec_address_label')}</FormLabel>
+                  <FormControl>
+                    <Input placeholder={t('crop_rec_address_placeholder')} {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

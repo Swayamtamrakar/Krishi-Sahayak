@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { TrendingUp } from "lucide-react";
 import { useLanguage } from "@/contexts/language-context";
@@ -49,6 +49,18 @@ const chartConfig = {
 export function MandiPrices() {
   const { t } = useLanguage();
   const [selectedCrop, setSelectedCrop] = useState<"wheat" | "rice" | "cotton">("wheat");
+  const [location, setLocation] = useState<string | null>(null);
+
+  useEffect(() => {
+    // In a real app, you would fetch location and then fetch prices for that location.
+    // For now, we'll just simulate detecting a location.
+    if ("geolocation" in navigator) {
+        navigator.geolocation.getCurrentPosition(
+            () => setLocation("Nagpur"),
+            () => setLocation(null)
+        );
+    }
+  }, []);
 
   return (
     <Card>
@@ -59,7 +71,12 @@ export function MandiPrices() {
                     <TrendingUp className="text-primary" />
                     {t('mandi_prices_title')}
                 </CardTitle>
-                <CardDescription>{t('mandi_prices_subtitle')}</CardDescription>
+                <CardDescription>
+                    {location 
+                        ? `${t('mandi_prices_subtitle_location')} ${location}`
+                        : t('mandi_prices_subtitle')
+                    }
+                </CardDescription>
             </div>
             <Select onValueChange={(value: "wheat" | "rice" | "cotton") => setSelectedCrop(value)} defaultValue={selectedCrop}>
                 <SelectTrigger className="w-full sm:w-[180px]">

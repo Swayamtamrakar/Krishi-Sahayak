@@ -65,6 +65,14 @@ export const translations = {
     en: 'Previous crop must be at least 2 characters.',
     hi: 'पिछली फसल कम से कम 2 अक्षर की होनी चाहिए।',
   },
+   crop_rec_address_label: {
+    en: 'Address (Optional)',
+    hi: 'पता (वैकल्पिक)',
+  },
+  crop_rec_address_placeholder: {
+    en: 'Enter your farm address for better accuracy',
+    hi: 'बेहतर सटीकता के लिए अपने खेत का पता दर्ज करें',
+  },
   crop_rec_button: {
     en: 'Get Recommendations',
     hi: 'सिफारिशें प्राप्त करें',
@@ -145,6 +153,10 @@ export const translations = {
     en: 'Live market prices and demand for key crops.',
     hi: 'प्रमुख फसलों के लिए लाइव बाजार मूल्य और मांग।',
   },
+  mandi_prices_subtitle_location: {
+    en: 'Displaying trends for',
+    hi: 'के लिए रुझान प्रदर्शित कर रहा है',
+  },
   mandi_select_crop_placeholder: {
     en: 'Select a crop',
     hi: 'एक फसल चुनें',
@@ -161,6 +173,39 @@ export const translations = {
     en: 'Cotton',
     hi: 'कपास',
   },
+
+  // Weather
+  weather_title: {
+    en: '7-Day Weather Forecast',
+    hi: '7-दिवसीय मौसम पूर्वानुमान',
+  },
+  weather_subtitle: {
+    en: 'Weekly forecast for',
+    hi: 'के लिए साप्ताहिक पूर्वानुमान',
+  },
+  weather_loading_location: {
+    en: 'Fetching location...',
+    hi: 'स्थान प्राप्त किया जा रहा है...',
+  },
+  weather_subtitle_error: {
+    en: 'Could not fetch location for weather forecast.',
+    hi: 'मौसम पूर्वानुमान के लिए स्थान प्राप्त नहीं किया जा सका।',
+  },
+  weather_location_error: {
+    en: 'Could not access your location. Please enable location services in your browser.',
+    hi: 'आपके स्थान तक नहीं पहुंच सका। कृपया अपने ब्राउज़र में स्थान सेवाएं सक्षम करें।',
+  },
+  weather_geolocation_unsupported: {
+    en: 'Geolocation is not supported by your browser.',
+    hi: 'आपका ब्राउज़र जियोलोकेशन का समर्थन नहीं करता है।',
+  },
+  day_mon: { en: 'Mon', hi: 'सोम' },
+  day_tue: { en: 'Tue', hi: 'मंगल' },
+  day_wed: { en: 'Wed', hi: 'बुध' },
+  day_thu: { en: 'Thu', hi: 'गुरु' },
+  day_fri: { en: 'Fri', hi: 'शुक्र' },
+  day_sat: { en: 'Sat', hi: 'शनि' },
+  day_sun: { en: 'Sun', hi: 'रवि' },
 };
 
 export type TranslationKey = keyof typeof translations;

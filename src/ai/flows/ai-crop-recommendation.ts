@@ -18,6 +18,7 @@ const AICropRecommendationInputSchema = z.object({
   soilType: z.string().describe('The type of soil on the land.'),
   area: z.number().describe('The area of the land in acres.'),
   previousCrop: z.string().describe('The crop that was previously grown on the land.'),
+  address: z.string().optional().describe('The address of the farm land for more accurate, location-based recommendations.'),
 });
 export type AICropRecommendationInput = z.infer<
   typeof AICropRecommendationInputSchema
@@ -57,6 +58,10 @@ const aiCropRecommendationPrompt = ai.definePrompt({
 - Soil Type: {{{soilType}}}
 - Area: {{{area}}} acres
 - Previous Crop: {{{previousCrop}}}
+{{#if address}}
+- Address: {{{address}}}
+Consider local climate and environmental factors for this address.
+{{/if}}
 
 Based on this information, recommend the top 3 crops that are most suitable for their land. For each crop, provide a suitability score (out of 100) and a brief rationale for your recommendation.
 

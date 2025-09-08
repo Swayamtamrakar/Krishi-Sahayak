@@ -3,6 +3,7 @@
 import { CropRecommendation } from "@/components/features/crop-recommendation";
 import { DiseaseDetection } from "@/components/features/disease-detection";
 import { MandiPrices } from "@/components/features/mandi-prices";
+import { WeatherForecast } from "@/components/features/weather-forecast";
 import { Header } from "@/components/layout/header";
 import { useLanguage } from "@/contexts/language-context";
 
@@ -20,6 +21,10 @@ export function KrishiSahayakApp() {
                     <p className="text-lg text-muted-foreground mt-2 max-w-2xl mx-auto">
                         {t('appSubtitle')}
                     </p>
+                </div>
+
+                <div className="mb-8">
+                    <WeatherForecast />
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8 items-start">
