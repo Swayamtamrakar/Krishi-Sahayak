@@ -54,8 +54,12 @@ export function MandiPrices() {
   useEffect(() => {
     if ("geolocation" in navigator) {
         navigator.geolocation.getCurrentPosition(
-            (position) => setLocation({latitude: position.coords.latitude, longitude: position.coords.longitude}),
-            () => setLocation(null)
+            (position) => {
+                setLocation({latitude: position.coords.latitude, longitude: position.coords.longitude});
+            },
+            () => {
+                setLocation(null); // Or handle error
+            }
         );
     }
   }, []);

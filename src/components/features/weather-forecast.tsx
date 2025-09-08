@@ -38,7 +38,7 @@ export function WeatherForecast() {
   useEffect(() => {
     if ("geolocation" in navigator) {
       navigator.geolocation.getCurrentPosition(
-        async (position) => {
+        (position) => {
           const { latitude, longitude } = position.coords;
           setLocation({ latitude, longitude });
           setLoading(false);
