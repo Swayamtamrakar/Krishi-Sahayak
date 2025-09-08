@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { TrendingUp } from "lucide-react";
+import { TrendingUp, LocateFixed } from "lucide-react";
 import { useLanguage } from "@/contexts/language-context";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -49,14 +49,12 @@ const chartConfig = {
 export function MandiPrices() {
   const { t } = useLanguage();
   const [selectedCrop, setSelectedCrop] = useState<"wheat" | "rice" | "cotton">("wheat");
-  const [location, setLocation] = useState<string | null>(null);
+  const [location, setLocation] = useState<{latitude: number; longitude: number} | null>(null);
 
   useEffect(() => {
-    // In a real app, you would fetch location and then fetch prices for that location.
-    // For now, we'll just simulate detecting a location.
     if ("geolocation" in navigator) {
         navigator.geolocation.getCurrentPosition(
-            () => setLocation("Nagpur"),
+            (position) => setLocation({latitude: position.coords.latitude, longitude: position.coords.longitude}),
             () => setLocation(null)
         );
     }
@@ -71,9 +69,10 @@ export function MandiPrices() {
                     <TrendingUp className="text-primary" />
                     {t('mandi_prices_title')}
                 </CardTitle>
-                <CardDescription>
+                <CardDescription className="flex items-center gap-1">
+                    <LocateFixed size={14} />
                     {location 
-                        ? `${t('mandi_prices_subtitle_location')} ${location}`
+                        ? `${t('mandi_prices_subtitle_location')} Lat: ${location.latitude.toFixed(2)}, Lon: ${location.longitude.toFixed(2)}`
                         : t('mandi_prices_subtitle')
                     }
                 </CardDescription>

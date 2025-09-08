@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { Sun, Cloud, CloudRain, MapPin, Loader, AlertCircle } from 'lucide-react';
+import { Sun, Cloud, CloudRain, MapPin, Loader, AlertCircle, LocateFixed } from 'lucide-react';
 import { useLanguage } from '@/contexts/language-context';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '../ui/skeleton';
@@ -32,7 +32,6 @@ const WeatherIcon = ({ condition, className }: { condition: string, className?: 
 export function WeatherForecast() {
   const { t } = useLanguage();
   const [location, setLocation] = useState<{ latitude: number, longitude: number } | null>(null);
-  const [city, setCity] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -42,9 +41,6 @@ export function WeatherForecast() {
         async (position) => {
           const { latitude, longitude } = position.coords;
           setLocation({ latitude, longitude });
-          // In a real app, you'd use a reverse geocoding service here.
-          // For this example, we'll use a mock city name.
-          setCity("Nagpur"); 
           setLoading(false);
         },
         (error) => {
@@ -65,10 +61,11 @@ export function WeatherForecast() {
           <MapPin className="text-primary" />
           {t('weather_title')}
         </CardTitle>
-        <CardDescription>
+        <CardDescription className="flex items-center gap-1">
+            <LocateFixed size={14}/>
             {loading && t('weather_loading_location')}
-            {city && `${t('weather_subtitle')} ${city}`}
-            {error && !city && t('weather_subtitle_error')}
+            {location && `${t('weather_subtitle')} Lat: ${location.latitude.toFixed(2)}, Lon: ${location.longitude.toFixed(2)}`}
+            {error && !location && t('weather_subtitle_error')}
         </CardDescription>
       </CardHeader>
       <CardContent>
