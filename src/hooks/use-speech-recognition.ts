@@ -10,6 +10,26 @@ interface SpeechRecognitionOptions {
 export const useSpeechRecognition = ({ onResult, onError }: SpeechRecognitionOptions) => {
     const [isListening, setIsListening] = useState(false);
     const recognitionRef = useRef<SpeechRecognition | null>(null);
+    const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+    const handleError = (error: string, message?: string) => {
+        let errorMessage = message || 'An unknown error occurred.';
+        switch (error) {
+            case 'not-allowed':
+                errorMessage = 'Microphone access denied. Please enable it in your browser settings.';
+                break;
+            case 'no-speech':
+                errorMessage = 'No speech was detected. Please try again.';
+                break;
+            case 'audio-capture':
+                errorMessage = 'Microphone not available. Please ensure it is connected and enabled.';
+                break;
+            case 'aborted':
+                // This can happen if the user clicks the button too fast. We can choose to ignore it.
+                return;
+        }
+        onError(errorMessage);
+    };
 
     useEffect(() => {
         if (typeof window === 'undefined') return;
@@ -32,20 +52,29 @@ export const useSpeechRecognition = ({ onResult, onError }: SpeechRecognitionOpt
             }
             if (finalTranscript) {
                 onResult(finalTranscript);
+                 if (timeoutRef.current) {
+                    clearTimeout(timeoutRef.current);
+                }
             }
         };
 
         recognition.onerror = (event) => {
-            onError(event.error);
+            handleError(event.error, event.message);
         };
 
         recognition.onend = () => {
             setIsListening(false);
+            if (timeoutRef.current) {
+                clearTimeout(timeoutRef.current);
+            }
         };
 
         recognitionRef.current = recognition;
 
         return () => {
+            if (timeoutRef.current) {
+                clearTimeout(timeoutRef.current);
+            }
             recognition.stop();
         };
     }, [onResult, onError]);
@@ -55,6 +84,11 @@ export const useSpeechRecognition = ({ onResult, onError }: SpeechRecognitionOpt
             recognitionRef.current.lang = lang;
             recognitionRef.current.start();
             setIsListening(true);
+            timeoutRef.current = setTimeout(() => {
+                if(isListening) {
+                    stopListening();
+                }
+            }, 5000); // Stop listening after 5 seconds of silence
         }
     }, [isListening]);
 
@@ -62,6 +96,9 @@ export const useSpeechRecognition = ({ onResult, onError }: SpeechRecognitionOpt
         if (recognitionRef.current && isListening) {
             recognitionRef.current.stop();
             setIsListening(false);
+             if (timeoutRef.current) {
+                clearTimeout(timeoutRef.current);
+            }
         }
     }, [isListening]);
 
