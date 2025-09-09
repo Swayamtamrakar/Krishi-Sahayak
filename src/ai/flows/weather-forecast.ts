@@ -14,37 +14,37 @@ import {z} from 'genkit';
 const WeatherForecastInputSchema = z.object({
   latitude: z.number().describe('The latitude for the forecast.'),
   longitude: z.number().describe('The longitude for the forecast.'),
-  units: z.enum(['C', 'F']).default('C').describe('The temperature unit (Celsius or Fahrenheit).'),
+  units: z.enum(['C', 'F']).default('C').describe('The temperature unit (C or F).'),
 });
 export type WeatherForecastInput = z.infer<typeof WeatherForecastInputSchema>;
 
 const CurrentWeatherSchema = z.object({
-    temp: z.number().describe("The current temperature."),
-    condition: z.string().describe("A brief description of the current weather (e.g., 'Thundershower')."),
-    precipitation: z.number().describe("The precipitation percentage."),
-    humidity: z.number().describe("The humidity percentage."),
-    windSpeed: z.number().describe("The wind speed in km/h."),
-    conditionIcon: z.enum(['sunny', 'cloudy', 'rainy', 'windy', 'stormy', 'snowy', 'partly-cloudy', 'thundershower']).describe("The icon representing the current weather condition."),
+    temp: z.number().describe("Current temperature."),
+    condition: z.string().describe("Brief description (e.g., 'Thundershower')."),
+    precipitation: z.number().describe("Precipitation percentage."),
+    humidity: z.number().describe("Humidity percentage."),
+    windSpeed: z.number().describe("Wind speed in km/h."),
+    conditionIcon: z.enum(['sunny', 'cloudy', 'rainy', 'windy', 'stormy', 'snowy', 'partly-cloudy', 'thundershower']).describe("Icon for the current condition."),
 });
 
 const HourlyForecastSchema = z.object({
-    time: z.string().describe("The time for the forecast entry (e.g., '4 pm', '7 pm', '10 pm', '1 am')."),
-    temp: z.number().describe("The temperature at that hour."),
-    precipitation: z.number().describe("The precipitation percentage at that hour."),
-    windSpeed: z.number().describe("The wind speed in km/h at that hour."),
+    time: z.string().describe("Time for the forecast (e.g., '4 pm')."),
+    temp: z.number().describe("Temperature at that hour."),
+    precipitation: z.number().describe("Precipitation percentage."),
+    windSpeed: z.number().describe("Wind speed in km/h."),
 });
 
 const DailyForecastSchema = z.object({
-    day: z.string().describe("The abbreviated day of the week (e.g., 'Tue', 'Wed')."),
-    highTemp: z.number().describe("The high temperature for the day."),
-    lowTemp: z.number().describe("The low temperature for the day."),
-    conditionIcon: z.enum(['sunny', 'cloudy', 'rainy', 'windy', 'stormy', 'snowy', 'partly-cloudy', 'thundershower']).describe("The icon representing the weather condition for the day."),
-    hourly: z.array(HourlyForecastSchema).length(8).describe("An array of the 8-hour forecast for this specific day (every 3 hours) with temperature, precipitation, and wind speed."),
+    day: z.string().describe("Abbreviated day (e.g., 'Tue')."),
+    highTemp: z.number().describe("High temperature."),
+    lowTemp: z.number().describe("Low temperature."),
+    conditionIcon: z.enum(['sunny', 'cloudy', 'rainy', 'windy', 'stormy', 'snowy', 'partly-cloudy', 'thundershower']).describe("Icon for the day's condition."),
+    hourly: z.array(HourlyForecastSchema).describe("8-hour forecast for this day (every 3 hours)."),
 });
 
 const WeatherForecastOutputSchema = z.object({
   current: CurrentWeatherSchema,
-  daily: z.array(DailyForecastSchema).length(8).describe("An array of the 8-day weather forecast."),
+  daily: z.array(DailyForecastSchema).describe("8-day weather forecast."),
 });
 export type WeatherForecastOutput = z.infer<typeof WeatherForecastOutputSchema>;
 
