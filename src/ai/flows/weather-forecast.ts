@@ -24,7 +24,6 @@ const CurrentWeatherSchema = z.object({
     precipitation: z.number().describe("The precipitation percentage."),
     humidity: z.number().describe("The humidity percentage."),
     windSpeed: z.number().describe("The wind speed in km/h."),
-    day: z.string().describe("The full name of the current day (e.g., 'Tuesday')."),
     conditionIcon: z.enum(['sunny', 'cloudy', 'rainy', 'windy', 'stormy', 'snowy', 'partly-cloudy', 'thundershower']).describe("The icon representing the current weather condition."),
 });
 
@@ -64,10 +63,8 @@ Latitude: {{{latitude}}}
 Longitude: {{{longitude}}}
 Units: {{{units}}}
 
-Based on the provided latitude and longitude, determine the current day of the week and provide its full name (e.g., 'Friday').
-
 Return the forecast as a JSON object with the following structure:
-- 'current': Current weather conditions (temp, condition, precipitation, humidity, windSpeed, day, conditionIcon).
+- 'current': Current weather conditions (temp, condition, precipitation, humidity, windSpeed, conditionIcon).
 - 'hourly': An 8-entry array for the next 24 hours (in 3-hour intervals) with 'time', 'temp', 'precipitation', and 'windSpeed'.
 - 'daily': An 8-day forecast array with 'day' (abbreviated), 'highTemp', 'lowTemp', and 'conditionIcon'.
 

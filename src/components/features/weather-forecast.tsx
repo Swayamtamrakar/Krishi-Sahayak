@@ -60,8 +60,13 @@ export function WeatherForecast() {
   const [error, setError] = useState<string | null>(null);
   const [units, setUnits] = useState<'C' | 'F'>('C');
   const [activeChart, setActiveChart] = useState<ChartType>("temperature");
+  const [currentDay, setCurrentDay] = useState<string>('');
 
   useEffect(() => {
+    // This will only run on the client, after initial hydration, preventing a mismatch.
+    const day = new Date().toLocaleDateString(undefined, { weekday: 'long' });
+    setCurrentDay(day);
+
     setLoading(true);
     if ("geolocation" in navigator) {
       navigator.geolocation.getCurrentPosition(
@@ -168,7 +173,7 @@ export function WeatherForecast() {
                 </div>
                 <div className="text-right mt-4 md:mt-0">
                     <h3 className="text-2xl font-bold">Weather</h3>
-                    <p className="text-muted-foreground">{current.day}</p>
+                    <p className="text-muted-foreground">{currentDay}</p>
                     <p className="text-muted-foreground">{current.condition}</p>
                 </div>
             </div>
