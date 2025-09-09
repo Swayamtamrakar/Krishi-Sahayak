@@ -27,19 +27,12 @@ const CurrentWeatherSchema = z.object({
     conditionIcon: z.enum(['sunny', 'cloudy', 'rainy', 'windy', 'stormy', 'snowy', 'partly-cloudy', 'thundershower']).describe("Icon for the current condition. It MUST be one of the specified enum values."),
 });
 
-const HourlyForecastSchema = z.object({
-    time: z.string().describe("Time for the forecast (e.g., '4 pm')."),
-    temp: z.number().describe("Temperature at that hour."),
-    precipitation: z.number().describe("Precipitation percentage."),
-    windSpeed: z.number().describe("Wind speed in km/h."),
-});
 
 const DailyForecastSchema = z.object({
     day: z.string().describe("Abbreviated day (e.g., 'Tue')."),
     highTemp: z.number().describe("High temperature."),
     lowTemp: z.number().describe("Low temperature."),
     conditionIcon: z.enum(['sunny', 'cloudy', 'rainy', 'windy', 'stormy', 'snowy', 'partly-cloudy', 'thundershower']).describe("Icon for the day's condition. It MUST be one of the specified enum values."),
-    hourly: z.array(HourlyForecastSchema).describe("8-hour forecast for the day (every 3 hours)."),
 });
 
 const WeatherForecastOutputSchema = z.object({
@@ -65,8 +58,7 @@ Units: {{{units}}}
 
 Return the forecast as a JSON object with the following structure:
 - 'current': Current weather conditions (temp, condition, precipitation, humidity, windSpeed, conditionIcon).
-- 'daily': An 8-day forecast array. Each day should include 'day' (abbreviated), 'highTemp', 'lowTemp', 'conditionIcon', and an 'hourly' array.
-- The 'hourly' array should contain an 8-entry forecast for THAT SPECIFIC DAY (in 3-hour intervals) with 'time', 'temp', 'precipitation', and 'windSpeed'.
+- 'daily': An 8-day forecast array. Each day should include 'day' (abbreviated), 'highTemp', 'lowTemp', and 'conditionIcon'.
 
 For the 'conditionIcon' field, you MUST use one of the following exact string values based on the weather condition: 'sunny', 'cloudy', 'rainy', 'windy', 'stormy', 'snowy', 'partly-cloudy', 'thundershower'. Do not use any other value.
 `,
