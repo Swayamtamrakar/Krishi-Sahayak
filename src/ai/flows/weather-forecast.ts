@@ -64,6 +64,8 @@ Latitude: {{{latitude}}}
 Longitude: {{{longitude}}}
 Units: {{{units}}}
 
+Based on the provided latitude and longitude, determine the current day of the week and provide its full name (e.g., 'Friday').
+
 Return the forecast as a JSON object with the following structure:
 - 'current': Current weather conditions (temp, condition, precipitation, humidity, windSpeed, day, conditionIcon).
 - 'hourly': An 8-entry array for the next 24 hours (in 3-hour intervals) with 'time', 'temp', 'precipitation', and 'windSpeed'.
