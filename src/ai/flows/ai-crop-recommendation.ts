@@ -36,6 +36,9 @@ const AICropRecommendationOutputSchema = z.object({
         rationale: z
           .string()
           .describe('The reasoning behind the crop recommendation.'),
+        expectedMandiProfit: z
+          .string()
+          .describe('The expected profit from selling the crop in the mandi, in local currency (e.g., INR).'),
       })
     )
     .describe('An array of the top 3 recommended crops.'),
@@ -60,12 +63,12 @@ const aiCropRecommendationPrompt = ai.definePrompt({
 - Previous Crop: {{{previousCrop}}}
 {{#if address}}
 - Address: {{{address}}}
-Consider local climate and environmental factors for this address.
+Consider local climate, environmental factors and current mandi (market) prices for this address.
 {{/if}}
 
-Based on this information, recommend the top 3 crops that are most suitable for their land. For each crop, provide a suitability score (out of 100) and a brief rationale for your recommendation.
+Based on this information, recommend the top 3 crops that are most suitable for their land. For each crop, provide a suitability score (out of 100), a brief rationale for your recommendation, and the expected profit from selling the crop in the mandi in the local currency.
 
-Format your response as a JSON object with a 'crops' array. Each element in the array should have 'name', 'suitabilityScore', and 'rationale' fields.
+Format your response as a JSON object with a 'crops' array. Each element in the array should have 'name', 'suitabilityScore', 'rationale', and 'expectedMandiProfit' fields.
 `,
 });
 

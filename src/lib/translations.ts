@@ -1,3 +1,4 @@
+
 export const translations = {
   appName: {
     en: 'Krishi-Sahayak',
@@ -81,6 +82,10 @@ export const translations = {
     en: 'Top Recommendations',
     hi: 'शीर्ष सिफारिशें',
   },
+  crop_rec_profit_label: {
+    en: 'Expected Mandi Profit',
+    hi: 'अपेक्षित मंडी लाभ',
+  },
   crop_rec_error: {
     en: 'Could not fetch crop recommendations. Please try again.',
     hi: 'फसल सिफारिशें प्राप्त नहीं की जा सकीं। कृपया पुन: प्रयास करें।',
@@ -116,8 +121,8 @@ export const translations = {
     hi: 'लक्षण',
   },
   disease_symptoms_placeholder: {
-    en: 'Describe the symptoms you see on the crop, or use the mic for voice input.',
-    hi: 'फसल पर दिखाई देने वाले लक्षणों का वर्णन करें, या वॉयस इनपुट के लिए माइक का उपयोग करें।',
+    en: 'Describe the symptoms you see on the crop.',
+    hi: 'फसल पर दिखने वाले लक्षणों का वर्णन करें।',
   },
   disease_symptoms_validation: {
     en: 'Symptoms must be at least 10 characters.',
@@ -143,61 +148,31 @@ export const translations = {
     en: 'Could not analyze the disease. Please try again.',
     hi: 'रोग का विश्लेषण नहीं किया जा सका। कृपया पुन: प्रयास करें।',
   },
-
-  // Mandi Prices
-  mandi_prices_title: {
-    en: 'Mandi Price Trends',
-    hi: 'मंडी मूल्य रुझान',
-  },
-  mandi_prices_subtitle: {
-    en: 'Live market prices and demand for key crops.',
-    hi: 'प्रमुख फसलों के लिए लाइव बाजार मूल्य और मांग।',
-  },
-  mandi_prices_subtitle_location: {
-    en: 'Displaying trends for',
-    hi: 'के लिए रुझान प्रदर्शित कर रहा है',
-  },
-  mandi_select_crop_placeholder: {
-    en: 'Select a crop',
-    hi: 'एक फसल चुनें',
-  },
-  crop_wheat: {
-    en: 'Wheat',
-    hi: 'गेहूँ',
-  },
-  crop_rice: {
-    en: 'Rice',
-    hi: 'चावल',
-  },
-  crop_cotton: {
-    en: 'Cotton',
-    hi: 'कपास',
-  },
-
-  // Weather
+  
+  // Weather Forecast
   weather_title: {
     en: '7-Day Weather Forecast',
-    hi: '7-दिवसीय मौसम पूर्वानुमान',
+    hi: '7-दिन का मौसम पूर्वानुमान',
   },
   weather_subtitle: {
-    en: 'Weekly forecast for',
-    hi: 'के लिए साप्ताहिक पूर्वानुमान',
+    en: 'Weather for your current location:',
+    hi: 'आपके वर्तमान स्थान के लिए मौसम:',
   },
   weather_loading_location: {
-    en: 'Fetching location...',
-    hi: 'स्थान प्राप्त किया जा रहा है...',
+    en: 'Fetching your location...',
+    hi: 'आपका स्थान प्राप्त किया जा रहा है...',
   },
   weather_subtitle_error: {
-    en: 'Could not fetch location for weather forecast.',
-    hi: 'मौसम पूर्वानुमान के लिए स्थान प्राप्त नहीं किया जा सका।',
+    en: 'Could not retrieve location.',
+    hi: 'स्थान पुनर्प्राप्त नहीं किया जा सका।',
   },
   weather_location_error: {
     en: 'Could not access your location. Please enable location services in your browser.',
-    hi: 'आपके स्थान तक नहीं पहुंच सका। कृपया अपने ब्राउज़र में स्थान सेवाएं सक्षम करें।',
+    hi: 'आपके स्थान तक नहीं पहुँचा जा सका। कृपया अपने ब्राउज़र में स्थान सेवाएं सक्षम करें।',
   },
   weather_geolocation_unsupported: {
     en: 'Geolocation is not supported by your browser.',
-    hi: 'आपका ब्राउज़र जियोलोकेशन का समर्थन नहीं करता है।',
+    hi: 'आपके ब्राउज़र द्वारा जियोलोकेशन समर्थित नहीं है।',
   },
   day_mon: { en: 'Mon', hi: 'सोम' },
   day_tue: { en: 'Tue', hi: 'मंगल' },
@@ -206,6 +181,28 @@ export const translations = {
   day_fri: { en: 'Fri', hi: 'शुक्र' },
   day_sat: { en: 'Sat', hi: 'शनि' },
   day_sun: { en: 'Sun', hi: 'रवि' },
+
+  // Mandi Prices
+  mandi_prices_title: {
+    en: 'Live Mandi Prices',
+    hi: 'लाइव मंडी मूल्य',
+  },
+  mandi_prices_subtitle: {
+    en: 'Market trends for major crops in your area.',
+    hi: 'आपके क्षेत्र में प्रमुख फसलों के लिए बाजार के रुझान।',
+  },
+  mandi_prices_subtitle_location: {
+      en: 'Showing prices near',
+      hi: 'आस-पास की कीमतें दिखा रहा है',
+  },
+  mandi_select_crop_placeholder: {
+    en: 'Select a crop',
+    hi: 'एक फसल चुनें',
+  },
+  crop_wheat: { en: 'Wheat', hi: 'गेहूँ' },
+  crop_rice: { en: 'Rice', hi: 'चावल' },
+  crop_cotton: { en: 'Cotton', hi: 'कपास' },
+
 };
 
 export type TranslationKey = keyof typeof translations;

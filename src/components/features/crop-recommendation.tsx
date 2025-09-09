@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Leaf, Bot, ListTree, AreaChart } from "lucide-react";
+import { Leaf, Bot, ListTree, AreaChart, IndianRupee } from "lucide-react";
 import { recommendCrops, AICropRecommendationOutput, AICropRecommendationInput } from "@/ai/flows/ai-crop-recommendation";
 import { useLanguage } from "@/contexts/language-context";
 import { Button } from "@/components/ui/button";
@@ -145,7 +145,12 @@ export function CropRecommendation() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm text-muted-foreground">{crop.rationale}</p>
+                  <p className="text-sm text-muted-foreground mb-3">{crop.rationale}</p>
+                   <div className="flex items-center gap-2 text-sm font-medium">
+                      <IndianRupee size={16} className="text-accent"/>
+                      <span className="font-headline">{t('crop_rec_profit_label')}:</span>
+                      <span>{crop.expectedMandiProfit}</span>
+                   </div>
                 </CardContent>
               </Card>
             ))}
