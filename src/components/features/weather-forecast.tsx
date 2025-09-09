@@ -26,7 +26,6 @@ type SelectedWeather = {
   precipitation?: number;
   humidity?: number;
   windSpeed?: number;
-  hourly: WeatherForecastOutput['daily'][0]['hourly'];
 };
 
 
@@ -74,7 +73,7 @@ export function WeatherForecast() {
   const [error, setError] = useState<string | null>(null);
   const [units, setUnits] = useState<'C' | 'F'>('C');
   const [activeChart, setActiveChart] = useState<ChartType>("temperature");
-  const [selectedWeather, setSelectedWeather] = useState<SelectedWeather | null>(null);
+  const [selectedDayIndex, setSelectedDayIndex] = useState(0);
 
 
   useEffect(() => {
@@ -104,18 +103,7 @@ export function WeatherForecast() {
             setLoading(true);
             const result: WeatherForecastOutput = await getWeatherForecast({ ...location, units });
             setWeatherData(result);
-            const today = new Date().toLocaleDateString(undefined, { weekday: 'long' });
-            setSelectedWeather({
-                isCurrent: true,
-                day: today,
-                temp: result.current.temp,
-                condition: result.current.condition,
-                conditionIcon: result.current.conditionIcon,
-                precipitation: result.current.precipitation,
-                humidity: result.current.humidity,
-                windSpeed: result.current.windSpeed,
-                hourly: result.daily[0].hourly,
-            });
+            setSelectedDayIndex(0);
             setError(null);
         } catch (apiError) {
             console.error("Error fetching weather forecast:", apiError);
@@ -135,26 +123,8 @@ export function WeatherForecast() {
     }
   }, [location, t, toast, units]);
 
-  const handleDayClick = (dayData: DailyForecastSchema, index: number) => {
-      const today = new Date();
-      today.setDate(today.getDate() + index);
-      const dayName = today.toLocaleDateString(undefined, { weekday: 'long' });
-      
-      const isCurrent = index === 0 && weatherData?.current;
-
-      setSelectedWeather({
-        isCurrent: !!isCurrent,
-        day: dayName,
-        temp: isCurrent ? weatherData.current.temp : undefined,
-        highTemp: dayData.highTemp,
-        lowTemp: dayData.lowTemp,
-        condition: isCurrent ? weatherData.current.condition : dayData.day, // Re-using day for condition text for now
-        conditionIcon: dayData.conditionIcon,
-        precipitation: isCurrent ? weatherData.current.precipitation : undefined,
-        humidity: isCurrent ? weatherData.current.humidity : undefined,
-        windSpeed: isCurrent ? weatherData.current.windSpeed : undefined,
-        hourly: dayData.hourly,
-      });
+  const handleDayClick = (index: number) => {
+      setSelectedDayIndex(index);
   }
   
   if (loading) {
@@ -172,7 +142,7 @@ export function WeatherForecast() {
     );
   }
 
-  if (error || !weatherData || !selectedWeather) {
+  if (error || !weatherData) {
       return (
            <Card className="bg-secondary/50 p-6 text-center">
                 <p className="text-destructive">{error || t('weather_api_error')}</p>
@@ -180,11 +150,46 @@ export function WeatherForecast() {
       )
   }
 
-  const { daily } = weatherData;
+  const { daily, current, hourly } = weatherData;
+  const selectedDayData = daily[selectedDayIndex];
+  
+  const isCurrentDay = selectedDayIndex === 0;
+
+  let selectedWeather: SelectedWeather;
+  let dayName: string;
+
+  if (isCurrentDay) {
+      dayName = new Date().toLocaleDateString(undefined, { weekday: 'long' });
+      selectedWeather = {
+          isCurrent: true,
+          day: dayName,
+          temp: current.temp,
+          highTemp: daily[0].highTemp,
+          lowTemp: daily[0].lowTemp,
+          condition: current.condition,
+          conditionIcon: current.conditionIcon,
+          precipitation: current.precipitation,
+          humidity: current.humidity,
+          windSpeed: current.windSpeed,
+      };
+  } else {
+      const date = new Date();
+      date.setDate(date.getDate() + selectedDayIndex);
+      dayName = date.toLocaleDateString(undefined, { weekday: 'long' });
+      selectedWeather = {
+          isCurrent: false,
+          day: dayName,
+          highTemp: selectedDayData.highTemp,
+          lowTemp: selectedDayData.lowTemp,
+          condition: selectedDayData.day, // AI provides abbreviated day, might need better text
+          conditionIcon: selectedDayData.conditionIcon,
+      };
+  }
+
   const chartDataMap = {
-    temperature: selectedWeather.hourly.map(h => ({ time: h.time, value: h.temp })),
-    precipitation: selectedWeather.hourly.map(h => ({ time: h.time, value: h.precipitation })),
-    wind: selectedWeather.hourly.map(h => ({ time: h.time, value: h.windSpeed })),
+    temperature: hourly.map(h => ({ time: h.time, value: h.temp })),
+    precipitation: hourly.map(h => ({ time: h.time, value: h.precipitation })),
+    wind: hourly.map(h => ({ time: h.time, value: h.windSpeed })),
   };
 
   const unitSymbols = {
@@ -235,39 +240,41 @@ export function WeatherForecast() {
             </div>
 
             {/* Chart and Tabs */}
-            <div className='mb-6'>
-                <Tabs defaultValue={activeChart} onValueChange={(value) => setActiveChart(value as ChartType)}>
-                    <TabsList className="mb-4">
-                        <TabsTrigger value="temperature">Temperature</TabsTrigger>
-                        <TabsTrigger value="precipitation">Precipitation</TabsTrigger>
-                        <TabsTrigger value="wind">Wind</TabsTrigger>
-                    </TabsList>
-                </Tabs>
-                <ChartContainer config={chartConfig} className="h-40 w-full">
-                   <ResponsiveContainer>
-                    <LineChart data={chartDataMap[activeChart]} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
-                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border) / 0.5)"/>
-                        <XAxis dataKey="time" axisLine={false} tickLine={false} tick={{fill: 'hsl(var(--muted-foreground))', fontSize: 12}} />
-                        <YAxis hide={true} domain={['dataMin - 2', 'dataMax + 2']} />
-                        <ChartTooltip 
-                           cursor={{stroke: 'hsl(var(--primary))', strokeWidth: 1, strokeDasharray: "5 5"}}
-                           content={<ChartTooltipContent 
-                                indicator='dot'
-                                labelKey='value'
-                                hideLabel={true}
-                                formatter={(value, name, props) => (
-                                    <div className="flex flex-col items-center">
-                                        <span className="font-bold text-foreground">{props.payload?.value}{unitSymbols[activeChart]}</span>
-                                        <span className="text-xs text-muted-foreground">{props.payload?.time}</span>
-                                    </div>
-                                )}
-                            />}
-                         />
-                        <Line type="monotone" dataKey="value" stroke={`var(--color-${activeChart})`} strokeWidth={2} dot={false} />
-                    </LineChart>
-                   </ResponsiveContainer>
-                </ChartContainer>
-            </div>
+            {isCurrentDay && (
+              <div className='mb-6'>
+                  <Tabs defaultValue={activeChart} onValueChange={(value) => setActiveChart(value as ChartType)}>
+                      <TabsList className="mb-4">
+                          <TabsTrigger value="temperature">Temperature</TabsTrigger>
+                          <TabsTrigger value="precipitation">Precipitation</TabsTrigger>
+                          <TabsTrigger value="wind">Wind</TabsTrigger>
+                      </TabsList>
+                  </Tabs>
+                  <ChartContainer config={chartConfig} className="h-40 w-full">
+                    <ResponsiveContainer>
+                      <LineChart data={chartDataMap[activeChart]} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
+                          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border) / 0.5)"/>
+                          <XAxis dataKey="time" axisLine={false} tickLine={false} tick={{fill: 'hsl(var(--muted-foreground))', fontSize: 12}} />
+                          <YAxis hide={true} domain={['dataMin - 2', 'dataMax + 2']} />
+                          <ChartTooltip 
+                            cursor={{stroke: 'hsl(var(--primary))', strokeWidth: 1, strokeDasharray: "5 5"}}
+                            content={<ChartTooltipContent 
+                                  indicator='dot'
+                                  labelKey='value'
+                                  hideLabel={true}
+                                  formatter={(value, name, props) => (
+                                      <div className="flex flex-col items-center">
+                                          <span className="font-bold text-foreground">{props.payload?.value}{unitSymbols[activeChart]}</span>
+                                          <span className="text-xs text-muted-foreground">{props.payload?.time}</span>
+                                      </div>
+                                  )}
+                              />}
+                          />
+                          <Line type="monotone" dataKey="value" stroke={`var(--color-${activeChart})`} strokeWidth={2} dot={false} />
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </ChartContainer>
+              </div>
+            )}
             
             {/* Daily Forecast */}
             <div className="grid grid-cols-4 md:grid-cols-8 gap-2 text-center">
@@ -276,8 +283,8 @@ export function WeatherForecast() {
                       key={index} 
                       variant="ghost" 
                       className="flex flex-col h-auto p-2 items-center justify-between bg-transparent hover:bg-accent rounded-lg transition-colors data-[selected=true]:bg-accent"
-                      data-selected={selectedWeather.isCurrent ? index === 0 : selectedWeather.day === new Date(new Date().setDate(new Date().getDate() + index)).toLocaleDateString(undefined, { weekday: 'long' }) }
-                      onClick={() => handleDayClick(day, index)}
+                      data-selected={selectedDayIndex === index}
+                      onClick={() => handleDayClick(index)}
                     >
                         <p className="font-semibold text-sm">{t(`day_${day.day.toLowerCase()}` as any, day.day)}</p>
                         <WeatherIcon condition={day.conditionIcon} className="w-8 h-8 my-2 text-primary" />
