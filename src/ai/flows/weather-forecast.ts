@@ -14,17 +14,36 @@ import {z} from 'genkit';
 const WeatherForecastInputSchema = z.object({
   latitude: z.number().describe('The latitude for the forecast.'),
   longitude: z.number().describe('The longitude for the forecast.'),
+  units: z.enum(['C', 'F']).default('C').describe('The temperature unit (Celsius or Fahrenheit).'),
 });
 export type WeatherForecastInput = z.infer<typeof WeatherForecastInputSchema>;
 
+const CurrentWeatherSchema = z.object({
+    temp: z.number().describe("The current temperature."),
+    condition: z.string().describe("A brief description of the current weather (e.g., 'Thundershower')."),
+    precipitation: z.number().describe("The precipitation percentage."),
+    humidity: z.number().describe("The humidity percentage."),
+    windSpeed: z.number().describe("The wind speed in km/h."),
+    day: z.string().describe("The full name of the current day (e.g., 'Tuesday')."),
+    conditionIcon: z.enum(['sunny', 'cloudy', 'rainy', 'windy', 'stormy', 'snowy', 'partly-cloudy', 'thundershower']).describe("The icon representing the current weather condition."),
+});
+
+const HourlyForecastSchema = z.object({
+    time: z.string().describe("The time for the forecast entry (e.g., '4 pm', '7 pm', '10 pm', '1 am')."),
+    temp: z.number().describe("The temperature at that hour."),
+});
+
 const DailyForecastSchema = z.object({
-    day: z.string().describe("The day of the week (e.g., 'Mon', 'Tue')."),
-    temp: z.number().describe('The average temperature in Celsius.'),
-    condition: z.enum(['sunny', 'cloudy', 'rainy', 'windy', 'stormy', 'snowy']).describe("The general weather condition for the day."),
+    day: z.string().describe("The abbreviated day of the week (e.g., 'Tue', 'Wed')."),
+    highTemp: z.number().describe("The high temperature for the day."),
+    lowTemp: z.number().describe("The low temperature for the day."),
+    conditionIcon: z.enum(['sunny', 'cloudy', 'rainy', 'windy', 'stormy', 'snowy', 'partly-cloudy', 'thundershower']).describe("The icon representing the weather condition for the day."),
 });
 
 const WeatherForecastOutputSchema = z.object({
-  forecast: z.array(DailyForecastSchema).length(7).describe('An array of the 7-day weather forecast.'),
+  current: CurrentWeatherSchema,
+  hourly: z.array(HourlyForecastSchema).length(8).describe("An array of the 8-hour temperature forecast (every 3 hours)."),
+  daily: z.array(DailyForecastSchema).length(8).describe("An array of the 8-day weather forecast."),
 });
 export type WeatherForecastOutput = z.infer<typeof WeatherForecastOutputSchema>;
 
@@ -37,12 +56,18 @@ const prompt = ai.definePrompt({
   name: 'weatherForecastPrompt',
   input: {schema: WeatherForecastInputSchema},
   output: {schema: WeatherForecastOutputSchema},
-  prompt: `You are a weather forecaster using Google's weather models. Provide an accurate 7-day weather forecast for the given location.
+  prompt: `You are a weather forecaster using Google's weather models. Provide an accurate and detailed weather forecast for the given location and temperature unit.
 
 Latitude: {{{latitude}}}
 Longitude: {{{longitude}}}
+Units: {{{units}}}
 
-Return the forecast as a JSON object with a 'forecast' array, where each element represents a day and includes 'day', 'temp' (in Celsius), and 'condition' ('sunny', 'cloudy', 'rainy', 'windy', 'stormy', 'snowy').
+Return the forecast as a JSON object with the following structure:
+- 'current': Current weather conditions (temp, condition, precipitation, humidity, windSpeed, day, conditionIcon).
+- 'hourly': An 8-entry array for the next 24 hours (in 3-hour intervals) with 'time' and 'temp'.
+- 'daily': An 8-day forecast array with 'day' (abbreviated), 'highTemp', 'lowTemp', and 'conditionIcon'.
+
+Use the following icon names for 'conditionIcon': 'sunny', 'cloudy', 'rainy', 'windy', 'stormy', 'snowy', 'partly-cloudy', 'thundershower'.
 `,
 });
 

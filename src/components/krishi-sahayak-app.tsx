@@ -11,11 +11,11 @@ export function KrishiSahayakApp() {
     const { t } = useLanguage();
 
     return (
-        <div className="flex flex-col min-h-screen bg-background">
+        <div className="flex flex-col min-h-screen bg-background text-foreground">
             <Header />
             <main className="flex-grow container mx-auto p-4 sm:p-6 lg:p-8">
                 <div className="text-center mb-12">
-                    <h1 className="text-4xl md:text-5xl font-bold font-headline text-foreground">
+                    <h1 className="text-4xl md:text-5xl font-bold font-headline text-primary/90">
                         {t('appName')}
                     </h1>
                     <p className="text-lg text-muted-foreground mt-2 max-w-2xl mx-auto">
