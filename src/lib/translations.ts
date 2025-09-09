@@ -30,6 +30,10 @@ export const translations = {
     en: 'Get top 3 crop suggestions based on your land details.',
     hi: 'अपनी भूमि के विवरण के आधार पर शीर्ष 3 फसल सुझाव प्राप्त करें।',
   },
+  crop_rec_soil_image_label: {
+    en: 'Soil Image (Optional)',
+    hi: 'मिट्टी का फोटो (वैकल्पिक)',
+  },
   crop_rec_soil_label: {
     en: 'Soil Type',
     hi: 'मिट्टी का प्रकार',

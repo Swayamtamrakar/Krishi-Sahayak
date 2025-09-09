@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, ChangeEvent } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Leaf, Bot, ListTree, AreaChart, IndianRupee } from "lucide-react";
+import Image from "next/image";
+import { Leaf, Bot, ListTree, AreaChart, IndianRupee, Upload, X } from "lucide-react";
 import { recommendCrops, AICropRecommendationOutput, AICropRecommendationInput } from "@/ai/flows/ai-crop-recommendation";
 import { useLanguage } from "@/contexts/language-context";
 import { Button } from "@/components/ui/button";
@@ -19,6 +20,9 @@ export function CropRecommendation() {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [recommendation, setRecommendation] = useState<AICropRecommendationOutput | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [imageDataUri, setImageDataUri] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const formSchema = z.object({
     soilType: z.string().min(2, { message: t('crop_rec_soil_validation') }),
@@ -37,11 +41,34 @@ export function CropRecommendation() {
     },
   });
 
+  const handleImageChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      if (file.size > 4 * 1024 * 1024) { // 4MB limit
+        toast({
+          variant: "destructive",
+          title: t('error_title'),
+          description: t('disease_image_size_error'),
+        });
+        return;
+      }
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+        setImageDataUri(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setLoading(true);
     setRecommendation(null);
     try {
-      const result = await recommendCrops(values as AICropRecommendationInput);
+      const result = await recommendCrops({
+        ...values,
+        soilImageUri: imageDataUri || undefined
+      });
       setRecommendation(result);
     } catch (error) {
       console.error("Error fetching crop recommendations:", error);
@@ -67,6 +94,47 @@ export function CropRecommendation() {
       <CardContent>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <FormItem>
+              <FormLabel>{t('crop_rec_soil_image_label')}</FormLabel>
+              <FormControl>
+                <div
+                  className="relative flex justify-center items-center w-full h-48 border-2 border-dashed rounded-lg cursor-pointer hover:border-primary transition-colors"
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    onChange={handleImageChange}
+                    className="hidden"
+                    accept="image/*"
+                  />
+                  {imagePreview ? (
+                    <>
+                      <Image src={imagePreview} alt="Soil preview" fill style={{ objectFit: 'contain' }} className="rounded-lg p-2" />
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        size="icon"
+                        className="absolute top-2 right-2 h-7 w-7"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setImagePreview(null);
+                          setImageDataUri(null);
+                          if(fileInputRef.current) fileInputRef.current.value = "";
+                        }}
+                      >
+                        <X size={16} />
+                      </Button>
+                    </>
+                  ) : (
+                    <div className="text-center text-muted-foreground">
+                      <Upload size={32} className="mx-auto mb-2" />
+                      <p>{t('disease_image_placeholder')}</p>
+                    </div>
+                  )}
+                </div>
+              </FormControl>
+            </FormItem>
             <FormField
               control={form.control}
               name="soilType"

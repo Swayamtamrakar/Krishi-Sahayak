@@ -19,6 +19,9 @@ const AICropRecommendationInputSchema = z.object({
   area: z.number().describe('The area of the land in acres.'),
   previousCrop: z.string().describe('The crop that was previously grown on the land.'),
   address: z.string().optional().describe('The address of the farm land for more accurate, location-based recommendations.'),
+  soilImageUri: z.string().optional().describe(
+      'A photo of the soil, as a data URI that must include a MIME type and use Base64 encoding. Expected format: data:<mimetype>;base64,<encoded_data>.'
+    ),
 });
 export type AICropRecommendationInput = z.infer<
   typeof AICropRecommendationInputSchema
@@ -64,6 +67,10 @@ const aiCropRecommendationPrompt = ai.definePrompt({
 {{#if address}}
 - Address: {{{address}}}
 Consider local climate, environmental factors and current mandi (market) prices for this address.
+{{/if}}
+{{#if soilImageUri}}
+- Soil Image: {{media url=soilImageUri}}
+Analyze the provided image of the soil to refine your assessment of the soil type and quality.
 {{/if}}
 
 Based on this information, recommend the top 3 crops that are most suitable for their land. For each crop, provide a suitability score (out of 100), a brief rationale for your recommendation, and the expected profit from selling the crop in the mandi in the local currency.
