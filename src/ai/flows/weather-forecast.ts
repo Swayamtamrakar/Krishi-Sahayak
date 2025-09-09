@@ -39,11 +39,11 @@ const DailyForecastSchema = z.object({
     highTemp: z.number().describe("The high temperature for the day."),
     lowTemp: z.number().describe("The low temperature for the day."),
     conditionIcon: z.enum(['sunny', 'cloudy', 'rainy', 'windy', 'stormy', 'snowy', 'partly-cloudy', 'thundershower']).describe("The icon representing the weather condition for the day."),
+    hourly: z.array(HourlyForecastSchema).length(8).describe("An array of the 8-hour forecast for this specific day (every 3 hours) with temperature, precipitation, and wind speed."),
 });
 
 const WeatherForecastOutputSchema = z.object({
   current: CurrentWeatherSchema,
-  hourly: z.array(HourlyForecastSchema).length(8).describe("An array of the 8-hour forecast (every 3 hours) with temperature, precipitation, and wind speed."),
   daily: z.array(DailyForecastSchema).length(8).describe("An array of the 8-day weather forecast."),
 });
 export type WeatherForecastOutput = z.infer<typeof WeatherForecastOutputSchema>;
@@ -65,8 +65,8 @@ Units: {{{units}}}
 
 Return the forecast as a JSON object with the following structure:
 - 'current': Current weather conditions (temp, condition, precipitation, humidity, windSpeed, conditionIcon).
-- 'hourly': An 8-entry array for the next 24 hours (in 3-hour intervals) with 'time', 'temp', 'precipitation', and 'windSpeed'.
-- 'daily': An 8-day forecast array with 'day' (abbreviated), 'highTemp', 'lowTemp', and 'conditionIcon'.
+- 'daily': An 8-day forecast array. Each day should include 'day' (abbreviated), 'highTemp', 'lowTemp', 'conditionIcon', and a nested 'hourly' array.
+- The nested 'hourly' array for each day should contain an 8-entry forecast for that day (in 3-hour intervals) with 'time', 'temp', 'precipitation', and 'windSpeed'.
 
 Use the following icon names for 'conditionIcon': 'sunny', 'cloudy', 'rainy', 'windy', 'stormy', 'snowy', 'partly-cloudy', 'thundershower'.
 `,

@@ -26,6 +26,7 @@ type SelectedWeather = {
   precipitation?: number;
   humidity?: number;
   windSpeed?: number;
+  hourly: WeatherForecastOutput['daily'][0]['hourly'];
 };
 
 
@@ -113,6 +114,7 @@ export function WeatherForecast() {
                 precipitation: result.current.precipitation,
                 humidity: result.current.humidity,
                 windSpeed: result.current.windSpeed,
+                hourly: result.daily[0].hourly,
             });
             setError(null);
         } catch (apiError) {
@@ -138,13 +140,20 @@ export function WeatherForecast() {
       today.setDate(today.getDate() + index);
       const dayName = today.toLocaleDateString(undefined, { weekday: 'long' });
       
+      const isCurrent = index === 0 && weatherData?.current;
+
       setSelectedWeather({
-        isCurrent: index === 0,
+        isCurrent: !!isCurrent,
         day: dayName,
+        temp: isCurrent ? weatherData.current.temp : undefined,
         highTemp: dayData.highTemp,
         lowTemp: dayData.lowTemp,
-        condition: dayData.day, // Re-using day for condition text for now
+        condition: isCurrent ? weatherData.current.condition : dayData.day, // Re-using day for condition text for now
         conditionIcon: dayData.conditionIcon,
+        precipitation: isCurrent ? weatherData.current.precipitation : undefined,
+        humidity: isCurrent ? weatherData.current.humidity : undefined,
+        windSpeed: isCurrent ? weatherData.current.windSpeed : undefined,
+        hourly: dayData.hourly,
       });
   }
   
@@ -171,11 +180,11 @@ export function WeatherForecast() {
       )
   }
 
-  const { hourly, daily } = weatherData;
+  const { daily } = weatherData;
   const chartDataMap = {
-    temperature: hourly.map(h => ({ time: h.time, value: h.temp })),
-    precipitation: hourly.map(h => ({ time: h.time, value: h.precipitation })),
-    wind: hourly.map(h => ({ time: h.time, value: h.windSpeed })),
+    temperature: selectedWeather.hourly.map(h => ({ time: h.time, value: h.temp })),
+    precipitation: selectedWeather.hourly.map(h => ({ time: h.time, value: h.precipitation })),
+    wind: selectedWeather.hourly.map(h => ({ time: h.time, value: h.windSpeed })),
   };
 
   const unitSymbols = {
@@ -193,7 +202,7 @@ export function WeatherForecast() {
                     <WeatherIcon condition={selectedWeather.conditionIcon} className="w-20 h-20 sm:w-24 sm:h-24 text-primary mr-4" />
                     <div>
                         <div className="flex items-baseline">
-                            {selectedWeather.isCurrent ? (
+                            {selectedWeather.isCurrent && selectedWeather.temp !== undefined ? (
                                <h2 className="text-5xl sm:text-6xl font-bold">{selectedWeather.temp}</h2>
                             ) : (
                                 <div className="flex items-baseline">
