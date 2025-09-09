@@ -174,6 +174,10 @@ export const translations = {
     en: 'Geolocation is not supported by your browser.',
     hi: 'आपके ब्राउज़र द्वारा जियोलोकेशन समर्थित नहीं है।',
   },
+  weather_api_error: {
+    en: 'Could not fetch weather data. Please try again later.',
+    hi: 'मौसम डेटा प्राप्त नहीं किया जा सका। कृपया बाद में पुन: प्रयास करें।',
+  },
   day_mon: { en: 'Mon', hi: 'सोम' },
   day_tue: { en: 'Tue', hi: 'मंगल' },
   day_wed: { en: 'Wed', hi: 'बुध' },
