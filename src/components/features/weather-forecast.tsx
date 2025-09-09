@@ -66,8 +66,10 @@ export function WeatherForecast() {
         if (!location) return;
         
         try {
+            setLoading(true);
             const result: WeatherForecastOutput = await getWeatherForecast(location);
             setWeatherData(result.forecast);
+            setError(null);
         } catch (apiError) {
             console.error("Error fetching weather forecast:", apiError);
             toast({
@@ -81,7 +83,9 @@ export function WeatherForecast() {
         }
     }
 
-    fetchWeather();
+    if (location) {
+        fetchWeather();
+    }
   }, [location, t, toast]);
 
 
@@ -105,7 +109,7 @@ export function WeatherForecast() {
             {[...Array(7)].map((_, i) => <Skeleton key={i} className="w-16 h-24" />)}
           </div>
         )}
-        {error && (
+        {error && !loading &&(
             <div className="flex flex-col items-center justify-center h-24 text-destructive">
                 <AlertCircle className="w-8 h-8 mb-2" />
                 <p className="text-center">{error}</p>
