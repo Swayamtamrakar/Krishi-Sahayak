@@ -1,19 +1,20 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { Sun, Cloud, CloudRain, LocateFixed, Wind, Snowflake, CloudLightning, CloudSun, Droplets, Thermometer } from 'lucide-react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { Sun, Cloud, CloudRain, LocateFixed, Wind, Snowflake, CloudLightning, CloudSun, Droplets, Thermometer, Gauge, AreaChart } from 'lucide-react';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
 import { useLanguage } from '@/contexts/language-context';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '../ui/skeleton';
 import { getWeatherForecast, WeatherForecastOutput } from '@/ai/flows/weather-forecast';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '../ui/button';
-import { Tabs, TabsList, TabsTrigger } from '../ui/tabs';
-import { ChartContainer, ChartTooltip, ChartTooltipContent } from '../ui/chart';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
+import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartConfig } from '../ui/chart';
 
 
 type ConditionIcon = WeatherForecastOutput['daily'][0]['conditionIcon'];
+type ChartType = "temperature" | "precipitation" | "wind";
 
 const weatherIconMap: Record<ConditionIcon, React.ComponentType<{ className?: string }>> = {
     'sunny': Sun,
@@ -25,6 +26,25 @@ const weatherIconMap: Record<ConditionIcon, React.ComponentType<{ className?: st
     'partly-cloudy': CloudSun,
     'thundershower': CloudLightning,
 };
+
+const chartConfig = {
+  temperature: {
+    label: "Temperature",
+    color: "hsl(var(--primary))",
+    icon: Thermometer,
+  },
+  precipitation: {
+    label: "Precipitation",
+    color: "hsl(var(--chart-2))",
+    icon: CloudRain,
+  },
+  wind: {
+    label: "Wind",
+    color: "hsl(var(--chart-3))",
+    icon: Wind,
+  },
+} satisfies ChartConfig;
+
 
 const WeatherIcon = ({ condition, className }: { condition: ConditionIcon, className?: string }) => {
   const IconComponent = weatherIconMap[condition] || Sun;
@@ -39,6 +59,7 @@ export function WeatherForecast() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [units, setUnits] = useState<'C' | 'F'>('C');
+  const [activeChart, setActiveChart] = useState<ChartType>("temperature");
 
   useEffect(() => {
     setLoading(true);
@@ -110,6 +131,17 @@ export function WeatherForecast() {
   }
 
   const { current, hourly, daily } = weatherData;
+  const chartDataMap = {
+    temperature: hourly.map(h => ({ time: h.time, value: h.temp })),
+    precipitation: hourly.map(h => ({ time: h.time, value: h.precipitation })),
+    wind: hourly.map(h => ({ time: h.time, value: h.windSpeed })),
+  };
+
+  const unitSymbols = {
+    temperature: `°${units}`,
+    precipitation: "%",
+    wind: "km/h",
+  };
 
   return (
     <Card className="bg-secondary/50 p-4 sm:p-6 text-foreground">
@@ -143,16 +175,16 @@ export function WeatherForecast() {
 
             {/* Chart and Tabs */}
             <div className='mb-6'>
-                <Tabs defaultValue="temperature">
+                <Tabs defaultValue={activeChart} onValueChange={(value) => setActiveChart(value as ChartType)}>
                     <TabsList className="mb-4">
                         <TabsTrigger value="temperature">Temperature</TabsTrigger>
-                        <TabsTrigger value="precipitation" disabled>Precipitation</TabsTrigger>
-                        <TabsTrigger value="wind" disabled>Wind</TabsTrigger>
+                        <TabsTrigger value="precipitation">Precipitation</TabsTrigger>
+                        <TabsTrigger value="wind">Wind</TabsTrigger>
                     </TabsList>
                 </Tabs>
-                <ChartContainer config={{}} className="h-40 w-full">
+                <ChartContainer config={chartConfig} className="h-40 w-full">
                    <ResponsiveContainer>
-                    <LineChart data={hourly} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
+                    <LineChart data={chartDataMap[activeChart]} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
                         <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border) / 0.5)"/>
                         <XAxis dataKey="time" axisLine={false} tickLine={false} tick={{fill: 'hsl(var(--muted-foreground))', fontSize: 12}} />
                         <YAxis hide={true} domain={['dataMin - 2', 'dataMax + 2']} />
@@ -160,17 +192,17 @@ export function WeatherForecast() {
                            cursor={{stroke: 'hsl(var(--primary))', strokeWidth: 1, strokeDasharray: "5 5"}}
                            content={<ChartTooltipContent 
                                 indicator='dot'
-                                labelKey='temp'
+                                labelKey='value'
                                 hideLabel={true}
                                 formatter={(value, name, props) => (
                                     <div className="flex flex-col items-center">
-                                        <span className="font-bold text-foreground">{props.payload?.temp}°{units}</span>
+                                        <span className="font-bold text-foreground">{props.payload?.value}{unitSymbols[activeChart]}</span>
                                         <span className="text-xs text-muted-foreground">{props.payload?.time}</span>
                                     </div>
                                 )}
                             />}
                          />
-                        <Line type="monotone" dataKey="temp" stroke="hsl(var(--primary))" strokeWidth={2} dot={false} />
+                        <Line type="monotone" dataKey="value" stroke={`var(--color-${activeChart})`} strokeWidth={2} dot={false} />
                     </LineChart>
                    </ResponsiveContainer>
                 </ChartContainer>

@@ -31,6 +31,8 @@ const CurrentWeatherSchema = z.object({
 const HourlyForecastSchema = z.object({
     time: z.string().describe("The time for the forecast entry (e.g., '4 pm', '7 pm', '10 pm', '1 am')."),
     temp: z.number().describe("The temperature at that hour."),
+    precipitation: z.number().describe("The precipitation percentage at that hour."),
+    windSpeed: z.number().describe("The wind speed in km/h at that hour."),
 });
 
 const DailyForecastSchema = z.object({
@@ -42,7 +44,7 @@ const DailyForecastSchema = z.object({
 
 const WeatherForecastOutputSchema = z.object({
   current: CurrentWeatherSchema,
-  hourly: z.array(HourlyForecastSchema).length(8).describe("An array of the 8-hour temperature forecast (every 3 hours)."),
+  hourly: z.array(HourlyForecastSchema).length(8).describe("An array of the 8-hour forecast (every 3 hours) with temperature, precipitation, and wind speed."),
   daily: z.array(DailyForecastSchema).length(8).describe("An array of the 8-day weather forecast."),
 });
 export type WeatherForecastOutput = z.infer<typeof WeatherForecastOutputSchema>;
@@ -64,7 +66,7 @@ Units: {{{units}}}
 
 Return the forecast as a JSON object with the following structure:
 - 'current': Current weather conditions (temp, condition, precipitation, humidity, windSpeed, day, conditionIcon).
-- 'hourly': An 8-entry array for the next 24 hours (in 3-hour intervals) with 'time' and 'temp'.
+- 'hourly': An 8-entry array for the next 24 hours (in 3-hour intervals) with 'time', 'temp', 'precipitation', and 'windSpeed'.
 - 'daily': An 8-day forecast array with 'day' (abbreviated), 'highTemp', 'lowTemp', and 'conditionIcon'.
 
 Use the following icon names for 'conditionIcon': 'sunny', 'cloudy', 'rainy', 'windy', 'stormy', 'snowy', 'partly-cloudy', 'thundershower'.
