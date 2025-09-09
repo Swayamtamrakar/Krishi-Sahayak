@@ -24,7 +24,7 @@ const CurrentWeatherSchema = z.object({
     precipitation: z.number().describe("Precipitation percentage."),
     humidity: z.number().describe("Humidity percentage."),
     windSpeed: z.number().describe("Wind speed in km/h."),
-    conditionIcon: z.enum(['sunny', 'cloudy', 'rainy', 'windy', 'stormy', 'snowy', 'partly-cloudy', 'thundershower']).describe("Icon for the current condition."),
+    conditionIcon: z.enum(['sunny', 'cloudy', 'rainy', 'windy', 'stormy', 'snowy', 'partly-cloudy', 'thundershower']).describe("Icon for the current condition. It MUST be one of the specified enum values."),
 });
 
 const HourlyForecastSchema = z.object({
@@ -38,7 +38,7 @@ const DailyForecastSchema = z.object({
     day: z.string().describe("Abbreviated day (e.g., 'Tue')."),
     highTemp: z.number().describe("High temperature."),
     lowTemp: z.number().describe("Low temperature."),
-    conditionIcon: z.enum(['sunny', 'cloudy', 'rainy', 'windy', 'stormy', 'snowy', 'partly-cloudy', 'thundershower']).describe("Icon for the day's condition."),
+    conditionIcon: z.enum(['sunny', 'cloudy', 'rainy', 'windy', 'stormy', 'snowy', 'partly-cloudy', 'thundershower']).describe("Icon for the day's condition. It MUST be one of the specified enum values."),
 });
 
 const WeatherForecastOutputSchema = z.object({
@@ -65,10 +65,10 @@ Units: {{{units}}}
 
 Return the forecast as a JSON object with the following structure:
 - 'current': Current weather conditions (temp, condition, precipitation, humidity, windSpeed, conditionIcon).
-- 'daily': An 8-day forecast array. Each day should include 'day' (abbreviated), 'highTemp', 'lowTemp', 'conditionIcon'.
+- 'daily': An 8-day forecast array. Each day should include 'day' (abbreviated), 'highTemp', 'lowTemp', and 'conditionIcon'.
 - 'hourly': An 8-entry forecast for the CURRENT DAY ONLY (in 3-hour intervals) with 'time', 'temp', 'precipitation', and 'windSpeed'.
 
-Use the following icon names for 'conditionIcon': 'sunny', 'cloudy', 'rainy', 'windy', 'stormy', 'snowy', 'partly-cloudy', 'thundershower'.
+For the 'conditionIcon' field, you MUST use one of the following exact string values based on the weather condition: 'sunny', 'cloudy', 'rainy', 'windy', 'stormy', 'snowy', 'partly-cloudy', 'thundershower'. Do not use any other value.
 `,
 });
 
