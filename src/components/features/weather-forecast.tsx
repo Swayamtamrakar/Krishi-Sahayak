@@ -131,11 +131,13 @@ export function WeatherForecast() {
   
   const isCurrentDay = selectedDayIndex === 0;
 
+  const date = new Date();
+  date.setDate(date.getDate() + selectedDayIndex);
+  const dayName = date.toLocaleDateString(undefined, { weekday: 'long' });
+
   let selectedWeather: SelectedWeather;
-  let dayName: string;
 
   if (isCurrentDay) {
-      dayName = new Date().toLocaleDateString(undefined, { weekday: 'long' });
       selectedWeather = {
           isCurrent: true,
           day: dayName,
@@ -149,9 +151,6 @@ export function WeatherForecast() {
           windSpeed: current.windSpeed,
       };
   } else {
-      const date = new Date();
-      date.setDate(date.getDate() + selectedDayIndex);
-      dayName = date.toLocaleDateString(undefined, { weekday: 'long' });
       selectedWeather = {
           isCurrent: false,
           day: dayName,
