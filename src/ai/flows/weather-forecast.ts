@@ -37,7 +37,7 @@ const prompt = ai.definePrompt({
   name: 'weatherForecastPrompt',
   input: {schema: WeatherForecastInputSchema},
   output: {schema: WeatherForecastOutputSchema},
-  prompt: `You are a weather forecaster. Provide a 7-day weather forecast for the given location.
+  prompt: `You are a weather forecaster using Google's weather models. Provide an accurate 7-day weather forecast for the given location.
 
 Latitude: {{{latitude}}}
 Longitude: {{{longitude}}}
