@@ -6,7 +6,7 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { useLanguage } from '@/contexts/language-context';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '../ui/skeleton';
-import { getWeatherForecast, WeatherForecastOutput } from '@/ai/flows/weather-forecast';
+import { getWeatherForecast, WeatherForecastOutput, DailyForecastSchema } from '@/ai/flows/weather-forecast';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '../ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
@@ -15,6 +15,19 @@ import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartConfig } from '
 
 type ConditionIcon = WeatherForecastOutput['daily'][0]['conditionIcon'];
 type ChartType = "temperature" | "precipitation" | "wind";
+type SelectedWeather = {
+  isCurrent: boolean;
+  day: string;
+  temp?: number;
+  highTemp?: number;
+  lowTemp?: number;
+  condition: string;
+  conditionIcon: ConditionIcon;
+  precipitation?: number;
+  humidity?: number;
+  windSpeed?: number;
+};
+
 
 const weatherIconMap: Record<ConditionIcon, React.ComponentType<{ className?: string }>> = {
     'sunny': Sun,
@@ -60,13 +73,10 @@ export function WeatherForecast() {
   const [error, setError] = useState<string | null>(null);
   const [units, setUnits] = useState<'C' | 'F'>('C');
   const [activeChart, setActiveChart] = useState<ChartType>("temperature");
-  const [currentDay, setCurrentDay] = useState<string>('');
+  const [selectedWeather, setSelectedWeather] = useState<SelectedWeather | null>(null);
+
 
   useEffect(() => {
-    // This will only run on the client, after initial hydration, preventing a mismatch.
-    const day = new Date().toLocaleDateString(undefined, { weekday: 'long' });
-    setCurrentDay(day);
-
     setLoading(true);
     if ("geolocation" in navigator) {
       navigator.geolocation.getCurrentPosition(
@@ -93,6 +103,17 @@ export function WeatherForecast() {
             setLoading(true);
             const result: WeatherForecastOutput = await getWeatherForecast({ ...location, units });
             setWeatherData(result);
+            const today = new Date().toLocaleDateString(undefined, { weekday: 'long' });
+            setSelectedWeather({
+                isCurrent: true,
+                day: today,
+                temp: result.current.temp,
+                condition: result.current.condition,
+                conditionIcon: result.current.conditionIcon,
+                precipitation: result.current.precipitation,
+                humidity: result.current.humidity,
+                windSpeed: result.current.windSpeed,
+            });
             setError(null);
         } catch (apiError) {
             console.error("Error fetching weather forecast:", apiError);
@@ -111,6 +132,21 @@ export function WeatherForecast() {
         fetchWeather();
     }
   }, [location, t, toast, units]);
+
+  const handleDayClick = (dayData: DailyForecastSchema, index: number) => {
+      const today = new Date();
+      today.setDate(today.getDate() + index);
+      const dayName = today.toLocaleDateString(undefined, { weekday: 'long' });
+      
+      setSelectedWeather({
+        isCurrent: index === 0,
+        day: dayName,
+        highTemp: dayData.highTemp,
+        lowTemp: dayData.lowTemp,
+        condition: dayData.day, // Re-using day for condition text for now
+        conditionIcon: dayData.conditionIcon,
+      });
+  }
   
   if (loading) {
     return (
@@ -127,7 +163,7 @@ export function WeatherForecast() {
     );
   }
 
-  if (error || !weatherData) {
+  if (error || !weatherData || !selectedWeather) {
       return (
            <Card className="bg-secondary/50 p-6 text-center">
                 <p className="text-destructive">{error || t('weather_api_error')}</p>
@@ -135,7 +171,7 @@ export function WeatherForecast() {
       )
   }
 
-  const { current, hourly, daily } = weatherData;
+  const { hourly, daily } = weatherData;
   const chartDataMap = {
     temperature: hourly.map(h => ({ time: h.time, value: h.temp })),
     precipitation: hourly.map(h => ({ time: h.time, value: h.precipitation })),
@@ -154,10 +190,17 @@ export function WeatherForecast() {
             {/* Top section */}
             <div className="flex flex-col md:flex-row justify-between items-start mb-6">
                 <div className="flex items-start">
-                    <WeatherIcon condition={current.conditionIcon} className="w-20 h-20 sm:w-24 sm:h-24 text-primary mr-4" />
+                    <WeatherIcon condition={selectedWeather.conditionIcon} className="w-20 h-20 sm:w-24 sm:h-24 text-primary mr-4" />
                     <div>
                         <div className="flex items-baseline">
-                            <h2 className="text-5xl sm:text-6xl font-bold">{current.temp}</h2>
+                            {selectedWeather.isCurrent ? (
+                               <h2 className="text-5xl sm:text-6xl font-bold">{selectedWeather.temp}</h2>
+                            ) : (
+                                <div className="flex items-baseline">
+                                    <h2 className="text-5xl sm:text-6xl font-bold">{selectedWeather.highTemp}°</h2>
+                                    <span className="text-3xl sm:text-4xl text-muted-foreground ml-2">{selectedWeather.lowTemp}°</span>
+                                </div>
+                            )}
                             <div className="flex items-center text-2xl sm:text-3xl font-medium ml-1">
                                 <button onClick={() => setUnits('C')} className={`${units === 'C' ? 'text-foreground' : 'text-muted-foreground'}`}>°C</button>
                                 <span className="mx-1 text-muted-foreground">|</span>
@@ -165,16 +208,20 @@ export function WeatherForecast() {
                             </div>
                         </div>
                         <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm text-muted-foreground mt-2">
-                           <p>Precipitation: {current.precipitation}%</p>
-                           <p>Humidity: {current.humidity}%</p>
-                           <p>Wind: {current.windSpeed} km/h</p>
+                          {selectedWeather.isCurrent && (
+                            <>
+                              <p>Precipitation: {selectedWeather.precipitation}%</p>
+                              <p>Humidity: {selectedWeather.humidity}%</p>
+                              <p>Wind: {selectedWeather.windSpeed} km/h</p>
+                            </>
+                          )}
                         </div>
                     </div>
                 </div>
                 <div className="text-right mt-4 md:mt-0">
                     <h3 className="text-2xl font-bold">Weather</h3>
-                    <p className="text-muted-foreground">{currentDay}</p>
-                    <p className="text-muted-foreground">{current.condition}</p>
+                    <p className="text-muted-foreground">{selectedWeather.day}</p>
+                    <p className="text-muted-foreground">{selectedWeather.condition}</p>
                 </div>
             </div>
 
@@ -216,7 +263,13 @@ export function WeatherForecast() {
             {/* Daily Forecast */}
             <div className="grid grid-cols-4 md:grid-cols-8 gap-2 text-center">
                 {daily.map((day, index) => (
-                    <Button key={index} variant="ghost" className="flex flex-col h-auto p-2 items-center justify-between bg-transparent hover:bg-accent rounded-lg transition-colors">
+                    <Button 
+                      key={index} 
+                      variant="ghost" 
+                      className="flex flex-col h-auto p-2 items-center justify-between bg-transparent hover:bg-accent rounded-lg transition-colors data-[selected=true]:bg-accent"
+                      data-selected={selectedWeather.isCurrent ? index === 0 : selectedWeather.day === new Date(new Date().setDate(new Date().getDate() + index)).toLocaleDateString(undefined, { weekday: 'long' }) }
+                      onClick={() => handleDayClick(day, index)}
+                    >
                         <p className="font-semibold text-sm">{t(`day_${day.day.toLowerCase()}` as any, day.day)}</p>
                         <WeatherIcon condition={day.conditionIcon} className="w-8 h-8 my-2 text-primary" />
                         <p className="font-bold text-sm">{day.highTemp}° <span className="text-muted-foreground">{day.lowTemp}°</span></p>
