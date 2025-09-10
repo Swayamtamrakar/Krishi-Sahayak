@@ -32,19 +32,13 @@ const AICropRecommendationOutputSchema = z.object({
   crops: z
     .array(
       z.object({
-        name: z.string().describe('The name of the recommended crop.'),
-        suitabilityScore: z
-          .number()
-          .describe('A score indicating the suitability of the crop for the land.'),
-        rationale: z
-          .string()
-          .describe('The reasoning behind the crop recommendation.'),
-        expectedMandiProfit: z
-          .string()
-          .describe('The expected profit from selling the crop in the mandi, in local currency (e.g., INR).'),
+        name: z.string(),
+        suitabilityScore: z.number(),
+        rationale: z.string(),
+        expectedMandiProfit: z.string(),
       })
     )
-    .describe('An array of the top 3 recommended crops.'),
+    .describe('An array of the top 3 recommended crops with name, suitability score, rationale, and expected profit.'),
 });
 export type AICropRecommendationOutput = z.infer<
   typeof AICropRecommendationOutputSchema
